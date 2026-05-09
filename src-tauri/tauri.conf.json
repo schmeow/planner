@@ -4,7 +4,10 @@
   "version": "0.1.0",
   "identifier": "com.anum.planner",
   "build": {
-    "frontendDist": "../src"
+    "beforeDevCommand": "npx vite",
+    "beforeBuildCommand": "npx vite build",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
   },
   "app": {
     "withGlobalTauri": true,

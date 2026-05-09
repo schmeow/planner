@@ -1,39 +1,53 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="styles.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/main.js" defer></script>
+    <title>Daily Log</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
-
   <body>
-    <main class="container">
-      <h1>Welcome to Tauri</h1>
 
-      <div class="row">
-        <a href="https://tauri.app" target="_blank">
-          <img src="/assets/tauri.svg" class="logo tauri" alt="Tauri logo" />
-        </a>
-        <a
-          href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"
-          target="_blank"
-        >
-          <img
-            src="/assets/javascript.svg"
-            class="logo vanilla"
-            alt="JavaScript logo"
-          />
-        </a>
+    <div id="app">
+      <div id="daily-view">
+        <div id="left-column">
+          <div id="tasks-events">
+            <div id="events-row">
+              <p class="section-label">Events</p>
+            </div>
+
+            <div id="tasks-row">
+              <p class="section-label">Tasks</p>
+            </div>
+
+          </div>
+
+          <div id="daily-log">
+            <p class="section-label">Daily Log</p>
+            <textarea id="log-input" placeholder="Write about your day..."></textarea>
+          </div>
+        </div>
+
+        <div id="right-column">
+          <div id="mood-tracker">
+            <p class="section-label">Mood</p>
+            <div id="mood-tags">
+              <button class="mood-tag" data-mood="great">Great</button>
+              <button class="mood-tag" data-mood="happy">Happy</button>
+              <button class="mood-tag" data-mood="average">Average</button>
+              <button class="mood-tag" data-mood="upset">Upset</button>
+              <button class="mood-tag" data-mood="tired">Tired</button>
+              <button class="mood-tag" data-mood="sick">Sick</button>
+              <button class="mood-tag" data-mood="sad">Sad</button>
+              <button class="mood-tag" data-mood="awful">Awful</button>
+              <button class="mood-tag" data-mood="stressed">Stressed</button>
+            </div>
+            <textarea id="mood-notes" placeholder="Add mood notes..."></textarea>
+          </div>
+        </div>
       </div>
-      <p>Click on the Tauri logo to learn more about the framework</p>
+    </div>
 
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greet-msg"></p>
-    </main>
+    <script type="module" src="main.js"></script>
   </body>
 </html>
