@@ -1,5 +1,7 @@
 #app {
   margin: 15px;
+  margin-top: 0;
+  
 }
 
 .section-label {
@@ -129,6 +131,16 @@
   overflow-y: auto;
   flex: 1;
   max-height: 100%;
+  align-self: top;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: start;
+}
+
+@media (min-width: 800px) {
+  #tasks-list {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .task-item {
@@ -163,4 +175,24 @@
 
 .pin-btn.pinned {
   opacity: 1;
+}
+
+#nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 5px;
+  padding-top: 0px;
+}
+
+#current-date-label {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#nav-bar button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
 }

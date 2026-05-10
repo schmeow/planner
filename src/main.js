@@ -32,7 +32,7 @@ async function initDatabase() {
       title TEXT
     )
   `);
-  await loadDay(currentDate);
+  await goToDate(currentDate);
   document.getElementById('log-input').addEventListener('input', saveDay);
   document.getElementById('mood-notes').addEventListener('input', saveDay);
   document.querySelectorAll('.mood-tag').forEach(button => {
@@ -43,14 +43,26 @@ async function initDatabase() {
   });
 
   document.getElementById('new-task-input').addEventListener('keydown', async (e) => {
-  if (e.key === 'Enter') {
-    const text = e.target.value.trim();
-    if (text) {
-      await addTask(text);
-      e.target.value = '';
+    if (e.key === 'Enter') {
+      const text = e.target.value.trim();
+      if (text) {
+        await addTask(text);
+        e.target.value = '';
+      }
     }
-  }
-});
+  });
+
+  document.getElementById('prev-day').addEventListener('click', () => {
+    const date = new Date(currentDate + 'T00:00:00');
+    date.setDate(date.getDate() - 1);
+    goToDate(date.toISOString().split('T')[0]);
+  });
+
+  document.getElementById('next-day').addEventListener('click', () => {
+    const date = new Date(currentDate + 'T00:00:00');
+    date.setDate(date.getDate() + 1);
+    goToDate(date.toISOString().split('T')[0]);
+  });
 }
 
 async function loadDay(date) {
@@ -138,8 +150,42 @@ async function loadTasks(date) {
       );
       await loadTasks(currentDate);
     });
+
+    taskEl.querySelector('.task-text').addEventListener('blur', async () => {
+      const newText = taskEl.querySelector('.task-text').innerText.trim();
+      await db.execute(
+        'UPDATE tasks SET text = ? WHERE id = ?',
+        [newText, task.id]
+      );
+    });
+
+    taskEl.querySelector('.task-checkbox').addEventListener('change', async (e) => {
+      await db.execute(
+        'UPDATE tasks SET completed = ? WHERE id = ?',
+        [e.target.checked ? 1 : 0, task.id]
+      );
+      await loadTasks(currentDate);
+    });
   });
 }
+
+function formatDate(dateString) {
+  const date = new Date(dateString + 'T00:00:00');
+  return date.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+}
+
+async function goToDate(date) {
+  currentDate = date;
+  document.getElementById('current-date-label').textContent = formatDate(date);
+  await loadDay(date);
+}
+
+
 
 initDatabase();
 

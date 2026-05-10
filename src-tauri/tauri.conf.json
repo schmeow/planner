@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "planner",
+        "title": "",
         "width": 800,
         "height": 600
       }
