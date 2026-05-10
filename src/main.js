@@ -2,6 +2,7 @@ const Database = (await import('@tauri-apps/plugin-sql')).default;
 
 let db;
 let currentDate = new Date().toISOString().split('T')[0];
+let calendarDisplayDate = new Date().toISOString().split('T')[0];
 
 async function initDatabase() {
   db = await Database.load('sqlite:dailylog.db');
@@ -183,6 +184,87 @@ async function goToDate(date) {
   currentDate = date;
   document.getElementById('current-date-label').textContent = formatDate(date);
   await loadDay(date);
+  renderCalender(currentDate);
+  calendarDisplayDate = currentDate;
+}
+
+async function renderCalender(dateString, displayDate = dateString) {
+  const date = dateString.split('-');
+  const year = date[0];
+  const month = date[1];
+  const numdays = new Date(year, month, 0).getDate();
+  const startday = new Date(year, month - 1, 1).getDay();
+  const today = new Date().toISOString().split('T')[0];
+
+  const calendar = document.getElementById('monthly-calendar');
+  calendar.innerHTML = '';
+
+  const header = document.createElement('div');
+  header.className = 'cal-header';
+
+  const prevBtn = document.createElement('button');
+  prevBtn.textContent = '←';
+  prevBtn.className = 'cal-nav-btn';
+  prevBtn.addEventListener('click', () => {
+    const d = new Date(year, month - 2, 1);
+    calendarDisplayDate = d.toISOString().split('T')[0];
+    renderCalender(calendarDisplayDate);
+  });
+
+  const nextBtn = document.createElement('button');
+  nextBtn.textContent = '→';
+  nextBtn.className = 'cal-nav-btn';
+  nextBtn.addEventListener('click', () => {
+    const d = new Date(year, month, 1);
+    calendarDisplayDate = d.toISOString().split('T')[0];
+    renderCalender(calendarDisplayDate);
+  });
+
+  const title = document.createElement('span');
+  title.textContent = new Date(year, month - 1, 1)
+    .toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  header.appendChild(prevBtn);
+  header.appendChild(title);
+  header.appendChild(nextBtn);
+  calendar.appendChild(header);
+
+  const labels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  const labelRow = document.createElement('div');
+  labelRow.className = 'cal-labels';
+  labels.forEach(l => {
+    const cell = document.createElement('span');
+    cell.textContent = l;
+    labelRow.appendChild(cell);
+  });
+  calendar.appendChild(labelRow);
+
+  const grid = document.createElement('div');
+  grid.className = 'cal-grid';
+
+  for (let i = 0; i < startday; i++) {
+    const empty = document.createElement('span');
+    grid.appendChild(empty);
+  }
+
+  for (let d = 1; d <= numdays; d++) {
+    const btn = document.createElement('button');
+    btn. textContent = d;
+    btn.className = 'cal-day';
+
+    const thisDate = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    if (thisDate === currentDate) {
+      btn.classList.add('selected-day');
+    } else if (thisDate === today) {
+      btn.classList.add('today');
+    }
+    grid.appendChild(btn);
+    btn.addEventListener('click', () => {
+      goToDate(thisDate)
+    })
+  }
+
+  calendar.appendChild(grid);
 }
 
 
