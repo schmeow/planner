@@ -186,6 +186,7 @@ async function goToDate(date) {
   await loadDay(date);
   renderCalender(currentDate);
   calendarDisplayDate = currentDate;
+  renderWeeklyView(date);
 }
 
 async function renderCalender(dateString, displayDate = dateString) {
@@ -193,7 +194,7 @@ async function renderCalender(dateString, displayDate = dateString) {
   const year = date[0];
   const month = date[1];
   const numdays = new Date(year, month, 0).getDate();
-  const startday = new Date(year, month - 1, 1).getDay();
+  const startday = (new Date(year, month - 1, 1).getDay() + 6) % 7;
   const today = new Date().toISOString().split('T')[0];
 
   const calendar = document.getElementById('monthly-calendar');
@@ -229,7 +230,7 @@ async function renderCalender(dateString, displayDate = dateString) {
   header.appendChild(nextBtn);
   calendar.appendChild(header);
 
-  const labels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  const labels = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
   const labelRow = document.createElement('div');
   labelRow.className = 'cal-labels';
   labels.forEach(l => {
@@ -265,6 +266,42 @@ async function renderCalender(dateString, displayDate = dateString) {
   }
 
   calendar.appendChild(grid);
+}
+
+async function getMonday(dateString) {
+  const date = dateString.split('-');
+  const year = date[0];
+  const month = date[1];
+  const curday = date[2].split('T')[0];
+
+  const dayofweek = new Date(year, month - 1, curday).getDay();
+  const offset = (Number(dayofweek) + 6) % 7;
+
+  return new Date(year, month -1, curday - offset)
+}
+
+async function renderWeeklyView(dateString) {
+  const monday = await getMonday(dateString);
+  const weeklyView = document.getElementById('weekly-view');
+  weeklyView.innerHTML = '';
+
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(monday);
+    day.setDate(monday.getDate() + i);
+    const dayString = day.toISOString().split('T')[0];
+
+    const dayEl = document.createElement('div');
+    dayEl.className = 'week-day';
+    if (dayString === dateString) dayEl.classList.add('week-day-selected');
+
+    const label = document.createElement('div');
+    label.className = 'week-day-label';
+    label.textContent = day.toLocaleDateString('en-US', {weekday: 'short', day: 'numeric'});
+
+    dayEl.appendChild(label);
+    dayEl.addEventListener('click', () => goToDate(dayString));
+    weeklyView.appendChild(dayEl)
+  }
 }
 
 
