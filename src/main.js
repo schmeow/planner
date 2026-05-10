@@ -41,6 +41,16 @@ async function initDatabase() {
       saveDay();
     });
   });
+
+  document.getElementById('new-task-input').addEventListener('keydown', async (e) => {
+  if (e.key === 'Enter') {
+    const text = e.target.value.trim();
+    if (text) {
+      await addTask(text);
+      e.target.value = '';
+    }
+  }
+});
 }
 
 async function loadDay(date) {
@@ -65,6 +75,7 @@ async function loadDay(date) {
     document.getElementById('log-input').value = '';
     document.getElementById('mood-notes').value = '';
   }
+  await loadTasks(date);
 }
 
 async function saveDay() {
@@ -87,4 +98,50 @@ async function saveDay() {
   );
 }
 
+async function addTask(text) {
+  await db.execute(
+    'INSERT INTO tasks (date, text, completed, pinned) VALUES (?, ?, 0, 0)',
+    [currentDate, text]
+  );
+  await loadTasks(currentDate);
+}
+
+async function loadTasks(date) {
+  const tasks = await db.select(
+    'SELECT * FROM tasks WHERE date = ?',
+    [date]
+  );
+
+  const tasksList = document.getElementById('tasks-list');
+  tasksList.innerHTML = '';
+
+  tasks.forEach(task => {
+    const taskEl = document.createElement('div');
+    taskEl.className = 'task-item';
+    taskEl.innerHTML = `
+      <input type="checkbox" ${task.completed ? 'checked' : ''} data-id="${task.id}" class="task-checkbox" />
+      <span class="task-text ${task.completed ? 'completed' : ''}" contenteditable="true" data-id="${task.id}">${task.text}</span>
+      <button class="pin-btn ${task.pinned ? 'pinned' : ''}" data-id="${task.id}">⚲</button>
+      <button class="delete-btn" data-id="${task.id}">×</button>
+    `;
+    tasksList.appendChild(taskEl);
+
+    taskEl.querySelector('.delete-btn').addEventListener('click', async () => {
+      await db.execute('DELETE FROM tasks WHERE id = ?', [task.id]);
+      await loadTasks(currentDate);
+    });
+
+    taskEl.querySelector('.pin-btn').addEventListener('click', async () => {
+      await db.execute(
+        'UPDATE tasks SET pinned = ? WHERE id = ?',
+        [task.pinned ? 0 : 1, task.id]
+      );
+      await loadTasks(currentDate);
+    });
+  });
+}
+
 initDatabase();
+
+
+
